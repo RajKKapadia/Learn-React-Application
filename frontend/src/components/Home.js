@@ -1,33 +1,36 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import BlogList from './BlogList';
 
 const Home = () => {
 
-    const [blogs, setBlogs] = useState([
-        {
-            title: 'Test 1',
-            body: 'Test body for the blog.',
-            author: 'Test',
-            id: 1
-        },
-        {
-            title: 'Test 2',
-            body: 'Test body for the blog.',
-            author: 'Test',
-            id: 2
-        },
-        {
-            title: 'Test 3',
-            body: 'Test body for the blog.',
-            author: 'Test',
-            id: 3
-        }
-    ]);
+    const [blogs, setBlogs] = useState([]);
 
-    const handleDelete = (id) => {
-        let newBlogs = blogs.filter((blog) => blog.id !== id);
-        setBlogs(newBlogs);
+    const handleDelete = async (id) => {
+        const response = await fetch(`${process.env.REACT_APP_DB_URL}/api/blogs/${id}`, {
+            method: 'DELETE',
+            body: JSON.stringify(blogs)
+        });
+
+        const json = await response.json();
+
+        if (!response.ok) {
+            console.error(json.message);
+        }
+        if (response.ok) {
+            setBlogs(blogs.filter((blog) => blog._id !== json.blog._id));
+        }
     };
+
+    useEffect(() => {
+        const fetchBlogs = async () => {
+            const response = await fetch(`${process.env.REACT_APP_DB_URL}/api/blogs`);
+            const json = await response.json();
+            if (response.ok) {
+                setBlogs(json.blogs);
+            }
+        };
+        fetchBlogs();
+    }, []);
 
     return (
         <div className="home">

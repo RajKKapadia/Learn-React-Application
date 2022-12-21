@@ -7,18 +7,25 @@ const useFetch = (url) => {
     const [isError, setIsError] = useState(false);
 
     useEffect(() => {
-        const fetchBlogs = async () => {
-            const response = await fetch(url);
-            if (response.ok) {
-                const json = await response.json();
-                setData(json.blogs);
-                setIsPending(false);
-            } else {
-                setIsPending(false);
-                setIsError(true);
+        const abortCont = new AbortController();
+        const fetchBlogs = async (signal) => {
+            try {
+                const response = await fetch(url, { signal: signal });
+                if (response.ok) {
+                    const json = await response.json();
+                    setData(json.blogs);
+                    setIsPending(false);
+                } else {
+                    setIsPending(false);
+                    setIsError(true);
+                }
+            } catch (error) {
+                console.log('Fetch wa aborted.');
             }
+
         };
-        fetchBlogs();
+        fetchBlogs(abortCont.signal);
+        return () => abortCont.abort();
     }, [url]);
 
     return { data, isPending, isError };

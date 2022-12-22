@@ -14,6 +14,7 @@ webApp.use(express.json());
 webApp.use(cors({origin: true}));
 
 webApp.use((req, res, next) => {
+    console.log(`Timestamp: ${new Date()}`);
     console.log(`Path ${req.path} with Method ${req.method}`);
     next();
 });

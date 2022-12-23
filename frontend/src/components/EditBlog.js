@@ -2,14 +2,15 @@ import { useState } from "react";
 import { Navigate } from "react-router-dom";
 
 
-const CreateNewBlog = () => {
+const EditBlog = ({ blog }) => {
 
-    const [title, setTitle] = useState('');
-    const [body, setBody] = useState('');
-    const [author, setAuthor] = useState('');
+    const [title, setTitle] = useState(blog.title);
+    const [body, setBody] = useState(blog.body);
+    const [author, setAuthor] = useState(blog.author);
     const [isPending, setIsPending] = useState(false);
     const [isDone, setIsDone] = useState(false);
 
+    const id = blog._id;
 
     const handleSubmit = async (e) => {
 
@@ -24,9 +25,9 @@ const CreateNewBlog = () => {
         setIsPending(true);
 
         const response = await fetch(
-            `${process.env.REACT_APP_DB_URL}/api/blogs`,
+            `${process.env.REACT_APP_DB_URL}/api/blogs/${id}`,
             {
-                method: 'POST',
+                method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(blog)
             });
@@ -50,12 +51,12 @@ const CreateNewBlog = () => {
                 <textarea type='text' required value={body} onChange={(e) => setBody(e.target.value)} />
                 <label>Blog author:</label>
                 <input type='text' required value={author} onChange={(e) => setAuthor(e.target.value)} />
-                {!isPending && <button onClick={handleSubmit}>Add</button>}
-                {isPending && <button disabled >Adding blog...</button>}
+                {!isPending && <button onClick={handleSubmit}>Update</button>}
+                {isPending && <button disabled >Updating blog...</button>}
             </form>
             {isDone && (<Navigate to="/" replace={true} />)}
         </div>
     );
 };
 
-export default CreateNewBlog;
+export default EditBlog;
